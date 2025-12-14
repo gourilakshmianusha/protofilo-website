@@ -75,6 +75,30 @@ const DEFAULT_NOTES: Note[] = [
     title: 'Java OOP Interview Questions',
     category: 'Java',
     url: '#'
+  },
+  {
+    id: 'n-3',
+    title: 'React Hooks Cheat Sheet',
+    category: 'Web',
+    url: '#'
+  },
+  {
+    id: 'n-4',
+    title: 'Data Structures & Algorithms Map',
+    category: 'CS Fundamentals',
+    url: '#'
+  },
+  {
+    id: 'n-5',
+    title: 'Python Pandas 101',
+    category: 'Data Science',
+    url: '#'
+  },
+  {
+    id: 'n-6',
+    title: 'Linux Command Line Basics',
+    category: 'Systems',
+    url: '#'
   }
 ];
 

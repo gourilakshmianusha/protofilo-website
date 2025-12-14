@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
-import { DataState, ContentType } from './types';
+import { DataState, ContentType, Course } from './types';
 import { loadData, saveData } from './services/storageService';
 import { generateDescription } from './services/geminiService';
-import { Plus, Trash2, Wand2, MapPin, Phone, Mail, FileText, Settings } from 'lucide-react';
+import { Plus, Trash2, Wand2, MapPin, Phone, Mail, FileText, Settings, ArrowLeft, Clock, Award, Target, BookOpen, Linkedin, Github, Twitter } from 'lucide-react';
 import CourseCard from './components/CourseCard';
 import ProjectCard from './components/ProjectCard';
 import NoteCard from './components/NoteCard';
@@ -48,6 +48,99 @@ const Home: React.FC = () => (
     </div>
   </div>
 );
+
+const CourseDetail: React.FC<{ course: Course }> = ({ course }) => {
+  const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(course.title + " programming code abstract technology high quality")}?width=1200&height=400&nologo=true`;
+
+  return (
+    <div className="animate-in fade-in duration-500">
+      <div className="relative h-64 md:h-80 w-full overflow-hidden">
+        <img src={imageUrl} alt={course.title} className="w-full h-full object-cover opacity-50" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
+        <div className="absolute bottom-0 left-0 right-0 p-8 max-w-7xl mx-auto">
+          <button 
+            onClick={() => window.history.back()}
+            className="flex items-center gap-2 text-indigo-400 hover:text-white mb-4 transition-colors"
+          >
+            <ArrowLeft size={20} /> Back to Courses
+          </button>
+          <div className="flex gap-2 mb-2">
+             {course.tags.map(tag => (
+                <span key={tag} className="px-2 py-1 bg-indigo-600/80 text-white text-xs font-bold rounded uppercase tracking-wider">{tag}</span>
+             ))}
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">{course.title}</h1>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid lg:grid-cols-3 gap-12">
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-8">
+            <div className="bg-slate-800/50 p-8 rounded-2xl border border-slate-700">
+              <h2 className="text-2xl font-bold text-white mb-4">About this Course</h2>
+              <p className="text-lg text-slate-300 leading-relaxed">{course.description}</p>
+              
+              <div className="mt-8 grid sm:grid-cols-2 gap-4">
+                 <div className="p-4 bg-slate-900 rounded-lg border border-slate-700 flex items-center gap-3">
+                    <Target className="text-indigo-400" />
+                    <div>
+                      <p className="text-xs text-slate-500 uppercase font-semibold">Skill Level</p>
+                      <p className="text-white font-medium">{course.level}</p>
+                    </div>
+                 </div>
+                 <div className="p-4 bg-slate-900 rounded-lg border border-slate-700 flex items-center gap-3">
+                    <Clock className="text-indigo-400" />
+                    <div>
+                      <p className="text-xs text-slate-500 uppercase font-semibold">Duration</p>
+                      <p className="text-white font-medium">{course.duration}</p>
+                    </div>
+                 </div>
+              </div>
+            </div>
+
+            <div className="bg-slate-800/50 p-8 rounded-2xl border border-slate-700">
+               <h2 className="text-2xl font-bold text-white mb-6">What You Will Learn</h2>
+               <ul className="space-y-3">
+                 {[1,2,3,4].map((i) => (
+                   <li key={i} className="flex gap-3 text-slate-300">
+                     <Award className="text-emerald-500 shrink-0" size={20} />
+                     <span>Comprehensive understanding of {course.title} core concepts and advanced techniques.</span>
+                   </li>
+                 ))}
+                 <li className="flex gap-3 text-slate-300">
+                    <Award className="text-emerald-500 shrink-0" size={20} />
+                    <span>Real-world application development and problem-solving skills.</span>
+                 </li>
+               </ul>
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            <div className="bg-indigo-900/20 p-6 rounded-2xl border border-indigo-500/30 sticky top-24">
+              <h3 className="text-xl font-bold text-white mb-4">Ready to Start?</h3>
+              <p className="text-slate-400 mb-6 text-sm">Enroll now to get access to full course materials, assignments, and mentorship.</p>
+              
+              <button 
+                onClick={() => window.location.hash = 'contact'}
+                className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-all shadow-lg hover:shadow-indigo-500/25 mb-3"
+              >
+                Contact to Enroll
+              </button>
+              <button 
+                onClick={() => window.location.hash = 'notes'}
+                className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-semibold transition-all border border-slate-600 flex items-center justify-center gap-2"
+              >
+                <BookOpen size={18} /> View Sample Notes
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const Contact: React.FC = () => (
   <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -346,16 +439,29 @@ const Admin: React.FC<AdminProps> = ({ data, onUpdate }) => {
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home');
+  const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
   const [data, setData] = useState<DataState>({ courses: [], projects: [], notes: [] });
 
   useEffect(() => {
     setData(loadData());
     
-    // Simple hash router handler
+    // Hash router handler
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '');
-      if (hash) setCurrentPage(hash);
-      else setCurrentPage('home');
+      
+      if (hash.startsWith('course/')) {
+        const id = hash.split('/')[1];
+        if (id) {
+          setSelectedCourseId(id);
+          setCurrentPage('course-detail');
+        }
+      } else if (hash) {
+        setCurrentPage(hash);
+        setSelectedCourseId(null);
+      } else {
+        setCurrentPage('home');
+        setSelectedCourseId(null);
+      }
     };
 
     window.addEventListener('hashchange', handleHashChange);
@@ -373,6 +479,13 @@ export default function App() {
     window.location.hash = page;
   };
 
+  const handleCourseClick = (id: string) => {
+    window.location.hash = `course/${id}`;
+  };
+
+  // Resolve selected course object
+  const selectedCourse = selectedCourseId ? data.courses.find(c => c.id === selectedCourseId) : null;
+
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans">
       <Navbar currentPage={currentPage} onNavigate={navigate} />
@@ -385,10 +498,18 @@ export default function App() {
             <h2 className="text-3xl font-bold text-white mb-8 border-l-4 border-indigo-500 pl-4">IT Courses</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {data.courses.map(course => (
-                <CourseCard key={course.id} course={course} />
+                <CourseCard key={course.id} course={course} onClick={handleCourseClick} />
               ))}
             </div>
           </div>
+        )}
+
+        {currentPage === 'course-detail' && selectedCourse && (
+          <CourseDetail course={selectedCourse} />
+        )}
+
+        {currentPage === 'course-detail' && !selectedCourse && (
+           <div className="p-12 text-center text-slate-400">Course not found.</div>
         )}
 
         {currentPage === 'projects' && (
@@ -426,9 +547,56 @@ export default function App() {
         )}
       </main>
 
-      <footer className="bg-slate-950 border-t border-slate-800 py-8 mt-12">
-        <div className="max-w-7xl mx-auto px-4 text-center text-slate-500">
-          <p>&copy; {new Date().getFullYear()} DevFolio. Built with React & Gemini.</p>
+      <footer className="bg-slate-950 border-t border-slate-800 pt-16 pb-8 mt-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-3 gap-12 mb-12">
+            <div>
+              <div className="flex items-center mb-4">
+                <span className="text-indigo-500 font-bold text-2xl mr-2">{`{ A }`}</span>
+                <span className="font-bold text-2xl tracking-tight text-white">Anusha</span>
+              </div>
+              <p className="text-slate-400 leading-relaxed">
+                Empowering students with practical IT skills and building the next generation of software solutions.
+              </p>
+              <div className="flex gap-4 mt-6">
+                 <a href="#" className="p-2 bg-slate-900 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"><Linkedin size={20} /></a>
+                 <a href="#" className="p-2 bg-slate-900 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"><Github size={20} /></a>
+                 <a href="#" className="p-2 bg-slate-900 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"><Twitter size={20} /></a>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-lg font-bold text-white mb-6">Quick Links</h4>
+              <ul className="space-y-3">
+                <li><button onClick={() => navigate('courses')} className="text-slate-400 hover:text-indigo-400 transition-colors">All Courses</button></li>
+                <li><button onClick={() => navigate('projects')} className="text-slate-400 hover:text-indigo-400 transition-colors">Portfolio Projects</button></li>
+                <li><button onClick={() => navigate('notes')} className="text-slate-400 hover:text-indigo-400 transition-colors">Student Notes</button></li>
+                <li><button onClick={() => navigate('contact')} className="text-slate-400 hover:text-indigo-400 transition-colors">Contact Support</button></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="text-lg font-bold text-white mb-6">Contact Info</h4>
+              <ul className="space-y-4">
+                <li className="flex items-start gap-3 text-slate-400">
+                  <MapPin className="shrink-0 text-indigo-500" size={20} />
+                  <span>#204 Flat, Swastik Plaza, Opp. Police Station, Hublli - 580032</span>
+                </li>
+                <li className="flex items-center gap-3 text-slate-400">
+                  <Phone className="shrink-0 text-indigo-500" size={20} />
+                  <span>9035066863</span>
+                </li>
+                <li className="flex items-center gap-3 text-slate-400">
+                  <Mail className="shrink-0 text-indigo-500" size={20} />
+                  <span>atomceatomce@gmail.com</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="pt-8 border-t border-slate-900 text-center text-slate-500 text-sm">
+            <p>&copy; {new Date().getFullYear()} Anusha. All rights reserved.</p>
+          </div>
         </div>
       </footer>
     </div>

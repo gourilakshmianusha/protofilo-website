@@ -4,15 +4,19 @@ import { Clock, BarChart } from 'lucide-react';
 
 interface CourseCardProps {
   course: Course;
+  onClick?: (id: string) => void;
 }
 
-const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
+const CourseCard: React.FC<CourseCardProps> = ({ course, onClick }) => {
   // Use Pollinations AI to generate a relevant image based on the title
   const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(course.title + " programming code abstract technology high quality")}?width=800&height=600&nologo=true`;
 
   return (
-    <div className="bg-slate-800 rounded-xl overflow-hidden shadow-lg hover:shadow-indigo-500/20 transition-all duration-300 hover:-translate-y-1 border border-slate-700 flex flex-col h-full">
-      <div className="h-48 overflow-hidden relative group">
+    <div 
+      onClick={() => onClick && onClick(course.id)}
+      className="bg-slate-800 rounded-xl overflow-hidden shadow-lg hover:shadow-indigo-500/20 transition-all duration-300 hover:-translate-y-1 border border-slate-700 flex flex-col h-full cursor-pointer group"
+    >
+      <div className="h-48 overflow-hidden relative">
         <img 
           src={imageUrl}
           alt={course.title}
@@ -31,7 +35,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
             </span>
           ))}
         </div>
-        <h3 className="text-xl font-bold text-white mb-2">{course.title}</h3>
+        <h3 className="text-xl font-bold text-white mb-2 group-hover:text-indigo-400 transition-colors">{course.title}</h3>
         <p className="text-slate-400 text-sm mb-4 line-clamp-3 flex-1">
           {course.description}
         </p>
