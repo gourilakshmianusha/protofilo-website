@@ -1,12 +1,13 @@
 import React from 'react';
 import { Note } from '../types';
-import { FileText, Download } from 'lucide-react';
+import { FileText, Download, Eye } from 'lucide-react';
 
 interface NoteCardProps {
   note: Note;
+  onPreview?: (note: Note) => void;
 }
 
-const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
+const NoteCard: React.FC<NoteCardProps> = ({ note, onPreview }) => {
   return (
     <div className="bg-slate-800 rounded-lg p-5 border border-slate-700 hover:border-indigo-500 transition-colors flex items-center justify-between group">
       <div className="flex items-center gap-4">
@@ -20,15 +21,26 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
           </span>
         </div>
       </div>
-      <a 
-        href={note.url} 
-        target="_blank" 
-        rel="noopener noreferrer"
-        className="p-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-full transition-all"
-        title="View/Download"
-      >
-        <Download size={20} />
-      </a>
+      <div className="flex gap-2">
+        {onPreview && (
+          <button 
+            onClick={() => onPreview(note)}
+            className="p-2 text-slate-400 hover:text-indigo-400 hover:bg-slate-700 rounded-full transition-all"
+            title="Preview"
+          >
+            <Eye size={20} />
+          </button>
+        )}
+        <a 
+          href={note.url} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="p-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-full transition-all"
+          title="Download / Open"
+        >
+          <Download size={20} />
+        </a>
+      </div>
     </div>
   );
 };

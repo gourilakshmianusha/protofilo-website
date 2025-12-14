@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
-import { DataState, ContentType, Course } from './types';
+import { DataState, ContentType, Course, Note } from './types';
 import { loadData, saveData } from './services/storageService';
 import { generateDescription } from './services/geminiService';
-import { Plus, Trash2, Wand2, MapPin, Phone, Mail, FileText, Settings, ArrowLeft, Clock, Award, Target, BookOpen, Linkedin, Github, Twitter } from 'lucide-react';
+import { Plus, Trash2, Wand2, MapPin, Phone, Mail, FileText, Settings, ArrowLeft, Clock, Award, Target, BookOpen, Linkedin, Github, Twitter, Download, Eye, X } from 'lucide-react';
 import CourseCard from './components/CourseCard';
 import ProjectCard from './components/ProjectCard';
 import NoteCard from './components/NoteCard';
@@ -20,7 +20,7 @@ const Home: React.FC = () => (
         Welcome to my digital garden. I explore complex IT concepts through teaching and build software that matters.
       </p>
       <div className="flex justify-center gap-4 flex-wrap">
-        <button onClick={() => window.location.hash = 'courses'} className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold transition-all">
+        <button onClick={() => window.location.hash = 'courses/all'} className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold transition-all">
           Explore Courses
         </button>
         <button onClick={() => window.location.hash = 'projects'} className="px-8 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-semibold transition-all border border-slate-700">
@@ -49,8 +49,15 @@ const Home: React.FC = () => (
   </div>
 );
 
-const CourseDetail: React.FC<{ course: Course }> = ({ course }) => {
+const CourseDetail: React.FC<{ course: Course; notes: Note[]; onPreview: (note: Note) => void }> = ({ course, notes, onPreview }) => {
   const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(course.title + " programming code abstract technology high quality")}?width=1200&height=400&nologo=true`;
+
+  // Find related notes based on simple tag/title matching
+  const relatedNotes = notes.filter(note => {
+     const titleMatch = course.title.toLowerCase().includes(note.category.toLowerCase());
+     const tagMatch = course.tags.some(t => t.toLowerCase() === note.category.toLowerCase());
+     return titleMatch || tagMatch;
+  });
 
   return (
     <div className="animate-in fade-in duration-500">
@@ -114,6 +121,48 @@ const CourseDetail: React.FC<{ course: Course }> = ({ course }) => {
                  </li>
                </ul>
             </div>
+
+            {/* Related Notes Section */}
+            {relatedNotes.length > 0 && (
+                <div className="bg-slate-800/50 p-8 rounded-2xl border border-slate-700">
+                    <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                        <FileText className="text-indigo-500" /> Course Notes & Materials
+                    </h2>
+                    <div className="grid gap-4">
+                        {relatedNotes.map(note => (
+                             <div key={note.id} className="flex items-center justify-between p-4 bg-slate-900 rounded-lg border border-slate-700 hover:border-indigo-500 transition-colors">
+                                 <div className="flex items-center gap-3">
+                                     <div className="p-2 bg-indigo-900/30 rounded text-indigo-400">
+                                       <FileText size={20} />
+                                     </div>
+                                     <div>
+                                        <h4 className="font-semibold text-white">{note.title}</h4>
+                                        <span className="text-xs text-slate-500">Resource Category: {note.category}</span>
+                                     </div>
+                                 </div>
+                                 <div className="flex gap-2">
+                                     <button 
+                                        onClick={() => onPreview(note)}
+                                        className="p-2 text-slate-400 hover:text-indigo-400 hover:bg-slate-700 rounded-full transition-all"
+                                        title="Preview"
+                                     >
+                                        <Eye size={20} />
+                                     </button>
+                                     <a 
+                                        href={note.url} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="p-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-full transition-all"
+                                        title="Download"
+                                     >
+                                        <Download size={20} />
+                                     </a>
+                                 </div>
+                             </div>
+                        ))}
+                    </div>
+                </div>
+            )}
           </div>
 
           {/* Sidebar */}
@@ -132,7 +181,7 @@ const CourseDetail: React.FC<{ course: Course }> = ({ course }) => {
                 onClick={() => window.location.hash = 'notes'}
                 className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-semibold transition-all border border-slate-600 flex items-center justify-center gap-2"
               >
-                <BookOpen size={18} /> View Sample Notes
+                <BookOpen size={18} /> Browse All Notes
               </button>
             </div>
           </div>
@@ -223,6 +272,7 @@ const Admin: React.FC<AdminProps> = ({ data, onUpdate }) => {
   const [description, setDescription] = useState('');
   const [tags, setTags] = useState(''); // Comma separated for simplicity (or category for notes)
   const [noteUrl, setNoteUrl] = useState(''); // Specific for notes
+  const [level, setLevel] = useState<'Beginner' | 'Intermediate' | 'Advanced'>('Beginner'); // Course Level
 
   const handleGenerate = async () => {
     if (activeTab === 'note') return; // Skip AI for notes
@@ -245,7 +295,7 @@ const Admin: React.FC<AdminProps> = ({ data, onUpdate }) => {
         id,
         title,
         description,
-        level: 'Beginner', 
+        level: level, 
         duration: 'Self-paced',
         tags: tagArray
       });
@@ -297,6 +347,9 @@ const Admin: React.FC<AdminProps> = ({ data, onUpdate }) => {
           <div key={item.id} className="bg-slate-900 p-3 rounded-lg border border-slate-700 flex justify-between items-start group">
             <div>
               <h4 className="font-medium text-white">{item.title}</h4>
+              {activeTab === 'course' && (
+                <span className="text-xs text-indigo-400 bg-indigo-900/30 px-1.5 py-0.5 rounded">{item.level}</span>
+              )}
               {activeTab === 'note' ? (
                 <a href={(item as any).url} target="_blank" className="text-xs text-indigo-400 hover:underline">View File</a>
               ) : (
@@ -377,6 +430,21 @@ const Admin: React.FC<AdminProps> = ({ data, onUpdate }) => {
                 />
               </div>
 
+              {activeTab === 'course' && (
+                <div>
+                  <label className="block text-sm font-medium text-slate-400 mb-1">Level</label>
+                  <select 
+                    value={level} 
+                    onChange={e => setLevel(e.target.value as any)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                  >
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                  </select>
+                </div>
+              )}
+
               {activeTab === 'note' ? (
                 <div>
                   <label className="block text-sm font-medium text-slate-400 mb-1">File URL / Drive Link</label>
@@ -440,7 +508,9 @@ const Admin: React.FC<AdminProps> = ({ data, onUpdate }) => {
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
+  const [courseFilter, setCourseFilter] = useState<string>('all');
   const [data, setData] = useState<DataState>({ courses: [], projects: [], notes: [] });
+  const [previewNote, setPreviewNote] = useState<Note | null>(null);
 
   useEffect(() => {
     setData(loadData());
@@ -450,11 +520,21 @@ export default function App() {
       const hash = window.location.hash.replace('#', '');
       
       if (hash.startsWith('course/')) {
-        const id = hash.split('/')[1];
-        if (id) {
-          setSelectedCourseId(id);
-          setCurrentPage('course-detail');
+        // Check if it's a detail view or a filter view
+        const part = hash.split('/')[1];
+        if (part === 'beginner' || part === 'intermediate' || part === 'advanced' || part === 'all') {
+             setCourseFilter(part);
+             setCurrentPage('courses');
+             setSelectedCourseId(null);
+        } else {
+             // It's an ID
+             setSelectedCourseId(part);
+             setCurrentPage('course-detail');
         }
+      } else if (hash.startsWith('courses')) {
+          setCourseFilter('all');
+          setCurrentPage('courses');
+          setSelectedCourseId(null);
       } else if (hash) {
         setCurrentPage(hash);
         setSelectedCourseId(null);
@@ -485,6 +565,12 @@ export default function App() {
 
   // Resolve selected course object
   const selectedCourse = selectedCourseId ? data.courses.find(c => c.id === selectedCourseId) : null;
+  
+  // Filter courses for display
+  const displayedCourses = data.courses.filter(course => {
+      if (courseFilter === 'all') return true;
+      return course.level.toLowerCase() === courseFilter.toLowerCase();
+  });
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans">
@@ -495,17 +581,24 @@ export default function App() {
         
         {currentPage === 'courses' && (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <h2 className="text-3xl font-bold text-white mb-8 border-l-4 border-indigo-500 pl-4">IT Courses</h2>
+            <h2 className="text-3xl font-bold text-white mb-8 border-l-4 border-indigo-500 pl-4 capitalize">
+                {courseFilter === 'all' ? 'All IT Courses' : `${courseFilter} Courses`}
+            </h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {data.courses.map(course => (
+              {displayedCourses.map(course => (
                 <CourseCard key={course.id} course={course} onClick={handleCourseClick} />
               ))}
             </div>
+            {displayedCourses.length === 0 && (
+                <div className="text-center py-20 bg-slate-800 rounded-xl border border-slate-700">
+                    <p className="text-slate-400">No courses found for this level.</p>
+                </div>
+            )}
           </div>
         )}
 
         {currentPage === 'course-detail' && selectedCourse && (
-          <CourseDetail course={selectedCourse} />
+          <CourseDetail course={selectedCourse} notes={data.notes} onPreview={setPreviewNote} />
         )}
 
         {currentPage === 'course-detail' && !selectedCourse && (
@@ -529,7 +622,7 @@ export default function App() {
              <p className="text-slate-400 mb-8 max-w-2xl">Download lecture notes, cheat sheets, and practice problems to support your learning.</p>
              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                {data.notes.map(note => (
-                 <NoteCard key={note.id} note={note} />
+                 <NoteCard key={note.id} note={note} onPreview={setPreviewNote} />
                ))}
              </div>
              {data.notes.length === 0 && (
@@ -547,6 +640,47 @@ export default function App() {
         )}
       </main>
 
+      {/* Note Preview Modal */}
+      {previewNote && (
+        <div className="fixed inset-0 z-[60] bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setPreviewNote(null)}>
+          <div className="bg-slate-900 w-full max-w-4xl h-[85vh] rounded-xl flex flex-col border border-slate-700 shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center p-4 border-b border-slate-700 bg-slate-900">
+              <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                <FileText className="text-indigo-500" size={20} />
+                {previewNote.title}
+              </h3>
+              <div className="flex items-center gap-3">
+                   <a 
+                      href={previewNote.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-white text-sm font-semibold transition-colors"
+                   >
+                     <Download size={16} /> Download
+                   </a>
+                   <button 
+                      onClick={() => setPreviewNote(null)}
+                      className="p-2 hover:bg-slate-800 rounded-full text-slate-400 hover:text-white transition-colors"
+                   >
+                     <X size={24} />
+                   </button>
+              </div>
+            </div>
+            <div className="flex-1 bg-slate-800 relative">
+               <iframe 
+                  src={previewNote.url} 
+                  className="w-full h-full bg-white" 
+                  title="Note Preview"
+                  sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+               />
+               <div className="absolute inset-0 -z-10 flex items-center justify-center text-slate-500">
+                  Loading preview...
+               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <footer className="bg-slate-950 border-t border-slate-800 pt-16 pb-8 mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-3 gap-12 mb-12">
@@ -561,16 +695,16 @@ export default function App() {
                 Empowering students with practical IT skills and building the next generation of software solutions.
               </p>
               <div className="flex gap-4 mt-6">
-                 <a href="#" className="p-2 bg-slate-900 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"><Linkedin size={20} /></a>
-                 <a href="#" className="p-2 bg-slate-900 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"><Github size={20} /></a>
-                 <a href="#" className="p-2 bg-slate-900 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"><Twitter size={20} /></a>
+                 <a href="https://linkedin.com" className="p-2 bg-slate-900 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"><Linkedin size={20} /></a>
+                 <a href="https://github.com/anusha-dev" className="p-2 bg-slate-900 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"><Github size={20} /></a>
+                 <a href="https://twitter.com" className="p-2 bg-slate-900 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"><Twitter size={20} /></a>
               </div>
             </div>
 
             <div>
               <h4 className="text-lg font-bold text-white mb-6">Quick Links</h4>
               <ul className="space-y-3">
-                <li><button onClick={() => navigate('courses')} className="text-slate-400 hover:text-indigo-400 transition-colors">All Courses</button></li>
+                <li><button onClick={() => navigate('courses/all')} className="text-slate-400 hover:text-indigo-400 transition-colors">All Courses</button></li>
                 <li><button onClick={() => navigate('projects')} className="text-slate-400 hover:text-indigo-400 transition-colors">Portfolio Projects</button></li>
                 <li><button onClick={() => navigate('notes')} className="text-slate-400 hover:text-indigo-400 transition-colors">Student Notes</button></li>
                 <li><button onClick={() => navigate('contact')} className="text-slate-400 hover:text-indigo-400 transition-colors">Contact Support</button></li>

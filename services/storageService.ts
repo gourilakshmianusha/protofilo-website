@@ -75,7 +75,7 @@ const DEFAULT_PROJECTS: Project[] = [
     title: 'E-Commerce Dashboard',
     description: 'A comprehensive analytics dashboard for online retailers featuring real-time sales tracking and inventory management.',
     techStack: ['React', 'D3.js', 'Tailwind'],
-    githubUrl: '#',
+    githubUrl: 'https://github.com/anusha-dev/ecommerce-dash',
     demoUrl: '#'
   },
   {
@@ -83,7 +83,7 @@ const DEFAULT_PROJECTS: Project[] = [
     title: 'AI Code Assistant',
     description: 'A VS Code extension that uses generative AI to suggest code completions and refactoring options.',
     techStack: ['TypeScript', 'Gemini API', 'Node.js'],
-    githubUrl: '#'
+    githubUrl: 'https://github.com/anusha-dev/ai-assistant'
   }
 ];
 
@@ -92,37 +92,37 @@ const DEFAULT_NOTES: Note[] = [
     id: 'n-1',
     title: 'C Programming Quick Reference',
     category: 'C',
-    url: '#'
+    url: 'https://www.tutorialspoint.com/cprogramming/cprogramming_tutorial.pdf'
   },
   {
     id: 'n-2',
     title: 'Java OOP Interview Questions',
     category: 'Java',
-    url: '#'
+    url: 'https://www.tutorialspoint.com/java/java_tutorial.pdf'
   },
   {
     id: 'n-3',
     title: 'React Hooks Cheat Sheet',
     category: 'Web',
-    url: '#'
+    url: 'https://react.dev'
   },
   {
     id: 'n-4',
     title: 'Data Structures & Algorithms Map',
     category: 'CS Fundamentals',
-    url: '#'
+    url: 'https://www.geeksforgeeks.org/data-structures/'
   },
   {
     id: 'n-5',
     title: 'Python Pandas 101',
     category: 'Data Science',
-    url: '#'
+    url: 'https://pandas.pydata.org/docs/user_guide/index.html'
   },
   {
     id: 'n-6',
     title: 'Linux Command Line Basics',
     category: 'Systems',
-    url: '#'
+    url: 'https://ubuntu.com/tutorials/command-line-for-beginners'
   }
 ];
 
