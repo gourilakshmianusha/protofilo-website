@@ -551,8 +551,10 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-3 gap-12 mb-12">
             <div>
-              <div className="flex items-center mb-4">
-                <span className="text-indigo-500 font-bold text-2xl mr-2">{`{ A }`}</span>
+              <div className="flex items-center mb-6">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white font-bold font-mono text-xl shadow-lg shadow-indigo-500/20 ring-1 ring-white/10 mr-3">
+                  {`{A}`}
+                </div>
                 <span className="font-bold text-2xl tracking-tight text-white">Anusha</span>
               </div>
               <p className="text-slate-400 leading-relaxed">

@@ -24,12 +24,15 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
   };
 
   return (
-    <nav className="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
+    <nav className="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 backdrop-blur-md bg-opacity-90">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <div className="flex items-center cursor-pointer" onClick={() => handleNav('home')}>
-            <span className="text-indigo-500 font-bold text-xl mr-2">{`{ A }`}</span>
-            <span className="font-bold text-xl tracking-tight">Anusha</span>
+          <div className="flex items-center cursor-pointer group" onClick={() => handleNav('home')}>
+             {/* Unique Logo {A} */}
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white font-bold font-mono text-lg shadow-lg shadow-indigo-500/20 ring-1 ring-white/10 mr-3 group-hover:scale-105 transition-transform">
+              {`{A}`}
+            </div>
+            <span className="font-bold text-xl tracking-tight text-slate-100 group-hover:text-white transition-colors">Anusha</span>
           </div>
           
           <div className="hidden md:block">
@@ -40,7 +43,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
                   onClick={() => handleNav(item.id)}
                   className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     currentPage === item.id
-                      ? 'bg-indigo-600 text-white'
+                      ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20'
                       : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                   }`}
                 >
@@ -64,7 +67,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
 
       {/* Mobile menu */}
       {isOpen && (
-        <div className="md:hidden bg-slate-800">
+        <div className="md:hidden bg-slate-800 border-b border-slate-700">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             {navItems.map((item) => (
               <button
