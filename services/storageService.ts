@@ -42,6 +42,30 @@ const DEFAULT_COURSES: Course[] = [
     level: 'Advanced',
     duration: '12 Weeks',
     tags: ['React', 'TypeScript', 'Web']
+  },
+  {
+    id: 'dsa-1',
+    title: 'Data Structures & Algorithms',
+    description: 'Master the fundamental building blocks of computer science. Learn to write efficient, scalable code and ace technical interviews.',
+    level: 'Advanced',
+    duration: '14 Weeks',
+    tags: ['DSA', 'CS', 'Interview']
+  },
+  {
+    id: 'ml-1',
+    title: 'Machine Learning A-Z',
+    description: 'A hands-on guide to building intelligent systems. Covers regression, classification, clustering, and neural networks using Python.',
+    level: 'Advanced',
+    duration: '12 Weeks',
+    tags: ['AI', 'Python', 'ML']
+  },
+  {
+    id: 'devops-1',
+    title: 'DevOps & Cloud Engineering',
+    description: 'Bridge the gap between development and operations. Learn Docker, Kubernetes, Jenkins, and AWS cloud infrastructure.',
+    level: 'Intermediate',
+    duration: '10 Weeks',
+    tags: ['AWS', 'Docker', 'CI/CD']
   }
 ];
 
@@ -108,6 +132,8 @@ export const loadData = (): DataState => {
     const parsed = JSON.parse(stored);
     // Migration for existing data without notes
     if (!parsed.notes) parsed.notes = DEFAULT_NOTES;
+    // Simple check to see if we should append new default courses to existing data
+    // In a real app we might handle migration more carefully
     return parsed;
   }
   return { courses: DEFAULT_COURSES, projects: DEFAULT_PROJECTS, notes: DEFAULT_NOTES };
