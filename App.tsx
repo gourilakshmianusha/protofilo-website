@@ -3,7 +3,7 @@ import Navbar from './components/Navbar';
 import { DataState, ContentType, Course, Note } from './types';
 import { loadData, saveData } from './services/storageService';
 import { generateDescription } from './services/geminiService';
-import { Plus, Trash2, Wand2, MapPin, Phone, Mail, FileText, Settings, ArrowLeft, Clock, Award, Target, BookOpen, Linkedin, Github, Twitter, Download, Eye, X } from 'lucide-react';
+import { Plus, Trash2, Wand2, MapPin, Phone, Mail, FileText, Settings, ArrowLeft, Clock, Award, Target, BookOpen, Linkedin, Github, Twitter, Download, Eye, X, ExternalLink } from 'lucide-react';
 import CourseCard from './components/CourseCard';
 import ProjectCard from './components/ProjectCard';
 import NoteCard from './components/NoteCard';
@@ -272,6 +272,8 @@ const Admin: React.FC<AdminProps> = ({ data, onUpdate }) => {
   const [description, setDescription] = useState('');
   const [tags, setTags] = useState(''); // Comma separated for simplicity (or category for notes)
   const [noteUrl, setNoteUrl] = useState(''); // Specific for notes
+  const [demoUrl, setDemoUrl] = useState(''); // Specific for projects
+  const [repoUrl, setRepoUrl] = useState(''); // Specific for projects
   const [level, setLevel] = useState<'Beginner' | 'Intermediate' | 'Advanced'>('Beginner'); // Course Level
 
   const handleGenerate = async () => {
@@ -305,7 +307,8 @@ const Admin: React.FC<AdminProps> = ({ data, onUpdate }) => {
         title,
         description,
         techStack: tagArray,
-        githubUrl: '#',
+        githubUrl: repoUrl || undefined,
+        demoUrl: demoUrl || undefined
       });
     } else if (activeTab === 'note') {
       newData.notes.push({
@@ -321,6 +324,8 @@ const Admin: React.FC<AdminProps> = ({ data, onUpdate }) => {
     setDescription('');
     setTags('');
     setNoteUrl('');
+    setDemoUrl('');
+    setRepoUrl('');
   };
 
   const handleDelete = (id: string, type: ContentType) => {
@@ -350,9 +355,24 @@ const Admin: React.FC<AdminProps> = ({ data, onUpdate }) => {
               {activeTab === 'course' && (
                 <span className="text-xs text-indigo-400 bg-indigo-900/30 px-1.5 py-0.5 rounded">{item.level}</span>
               )}
-              {activeTab === 'note' ? (
+              {activeTab === 'note' && (
                 <a href={(item as any).url} target="_blank" className="text-xs text-indigo-400 hover:underline">View File</a>
-              ) : (
+              )}
+              {activeTab === 'project' && (
+                 <div className="flex gap-2 mt-1">
+                   {(item as any).demoUrl && (
+                     <a href={(item as any).demoUrl} target="_blank" className="text-xs text-indigo-400 hover:underline flex items-center gap-1">
+                       <ExternalLink size={10} /> View Site
+                     </a>
+                   )}
+                   {(item as any).githubUrl && (
+                     <a href={(item as any).githubUrl} target="_blank" className="text-xs text-indigo-400 hover:underline flex items-center gap-1">
+                       <Github size={10} /> View Code
+                     </a>
+                   )}
+                 </div>
+              )}
+              {activeTab !== 'note' && (
                 <p className="text-xs text-slate-500 mt-1 line-clamp-1">{(item as any).description}</p>
               )}
             </div>
@@ -443,6 +463,31 @@ const Admin: React.FC<AdminProps> = ({ data, onUpdate }) => {
                     <option value="Advanced">Advanced</option>
                   </select>
                 </div>
+              )}
+
+              {activeTab === 'project' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-400 mb-1">Project Website URL (Demo)</label>
+                    <input 
+                      type="url" 
+                      value={demoUrl} 
+                      onChange={e => setDemoUrl(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                      placeholder="https://my-project.com"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-400 mb-1">GitHub Repository URL</label>
+                    <input 
+                      type="url" 
+                      value={repoUrl} 
+                      onChange={e => setRepoUrl(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                      placeholder="https://github.com/username/repo"
+                    />
+                  </div>
+                </>
               )}
 
               {activeTab === 'note' ? (
