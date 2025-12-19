@@ -32,7 +32,7 @@ const Home: React.FC = () => (
       </div>
     </div>
     
-    <div className="grid md:grid-cols-3 gap-8 mt-12">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
       <div className="bg-slate-800 p-6 rounded-xl border border-slate-700">
         <h3 className="text-xl font-bold text-white mb-2">Expert Instruction</h3>
         <p className="text-slate-400">Master C, C++, Java, Python, and Web Development with structured paths.</p>
@@ -71,24 +71,24 @@ const CourseDetail: React.FC<{ course: Course; notes: Note[]; onPreview: (note: 
           >
             <ArrowLeft size={20} /> Back to Courses
           </button>
-          <div className="flex gap-2 mb-2">
+          <div className="flex gap-2 mb-2 flex-wrap">
              {course.tags.map(tag => (
                 <span key={tag} className="px-2 py-1 bg-indigo-600/80 text-white text-xs font-bold rounded uppercase tracking-wider">{tag}</span>
              ))}
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">{course.title}</h1>
+          <h1 className="text-3xl md:text-5xl font-bold text-white mb-2">{course.title}</h1>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid lg:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
-            <div className="bg-slate-800/50 p-8 rounded-2xl border border-slate-700">
+            <div className="bg-slate-800/50 p-6 md:p-8 rounded-2xl border border-slate-700">
               <h2 className="text-2xl font-bold text-white mb-4">About this Course</h2>
               <p className="text-lg text-slate-300 leading-relaxed">{course.description}</p>
               
-              <div className="mt-8 grid sm:grid-cols-2 gap-4">
+              <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
                  <div className="p-4 bg-slate-900 rounded-lg border border-slate-700 flex items-center gap-3">
                     <Target className="text-indigo-400" />
                     <div>
@@ -106,7 +106,7 @@ const CourseDetail: React.FC<{ course: Course; notes: Note[]; onPreview: (note: 
               </div>
             </div>
 
-            <div className="bg-slate-800/50 p-8 rounded-2xl border border-slate-700">
+            <div className="bg-slate-800/50 p-6 md:p-8 rounded-2xl border border-slate-700">
                <h2 className="text-2xl font-bold text-white mb-6">What You Will Learn</h2>
                <ul className="space-y-3">
                  {[1,2,3,4].map((i) => (
@@ -124,13 +124,13 @@ const CourseDetail: React.FC<{ course: Course; notes: Note[]; onPreview: (note: 
 
             {/* Related Notes Section */}
             {relatedNotes.length > 0 && (
-                <div className="bg-slate-800/50 p-8 rounded-2xl border border-slate-700">
+                <div className="bg-slate-800/50 p-6 md:p-8 rounded-2xl border border-slate-700">
                     <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
                         <FileText className="text-indigo-500" /> Course Notes & Materials
                     </h2>
-                    <div className="grid gap-4">
+                    <div className="grid grid-cols-1 gap-4">
                         {relatedNotes.map(note => (
-                             <div key={note.id} className="flex items-center justify-between p-4 bg-slate-900 rounded-lg border border-slate-700 hover:border-indigo-500 transition-colors">
+                             <div key={note.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-900 rounded-lg border border-slate-700 hover:border-indigo-500 transition-colors gap-4">
                                  <div className="flex items-center gap-3">
                                      <div className="p-2 bg-indigo-900/30 rounded text-indigo-400">
                                        <FileText size={20} />
@@ -140,7 +140,7 @@ const CourseDetail: React.FC<{ course: Course; notes: Note[]; onPreview: (note: 
                                         <span className="text-xs text-slate-500">Resource Category: {note.category}</span>
                                      </div>
                                  </div>
-                                 <div className="flex gap-2">
+                                 <div className="flex gap-2 self-end sm:self-auto">
                                      <button 
                                         onClick={() => onPreview(note)}
                                         className="p-2 text-slate-400 hover:text-indigo-400 hover:bg-slate-700 rounded-full transition-all"
@@ -195,7 +195,7 @@ const Contact: React.FC = () => (
   <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
     <h2 className="text-3xl font-bold text-white mb-8 border-l-4 border-indigo-500 pl-4">Contact Me</h2>
     <div className="bg-slate-800 rounded-xl p-8 border border-slate-700 shadow-xl">
-      <div className="grid md:grid-cols-2 gap-8 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
         <div className="space-y-8">
           <div className="flex items-start gap-4">
             <div className="p-3 bg-indigo-900/30 rounded-lg text-indigo-400 mt-1">
@@ -350,8 +350,8 @@ const Admin: React.FC<AdminProps> = ({ data, onUpdate }) => {
       <div className="space-y-3">
         {items.map((item) => (
           <div key={item.id} className="bg-slate-900 p-3 rounded-lg border border-slate-700 flex justify-between items-start group">
-            <div>
-              <h4 className="font-medium text-white">{item.title}</h4>
+            <div className="flex-1 min-w-0">
+              <h4 className="font-medium text-white truncate">{item.title}</h4>
               {activeTab === 'course' && (
                 <span className="text-xs text-indigo-400 bg-indigo-900/30 px-1.5 py-0.5 rounded">{item.level}</span>
               )}
@@ -359,7 +359,7 @@ const Admin: React.FC<AdminProps> = ({ data, onUpdate }) => {
                 <a href={(item as any).url} target="_blank" className="text-xs text-indigo-400 hover:underline">View File</a>
               )}
               {activeTab === 'project' && (
-                 <div className="flex gap-2 mt-1">
+                 <div className="flex flex-wrap gap-2 mt-1">
                    {(item as any).demoUrl && (
                      <a href={(item as any).demoUrl} target="_blank" className="text-xs text-indigo-400 hover:underline flex items-center gap-1">
                        <ExternalLink size={10} /> View Site
@@ -378,7 +378,7 @@ const Admin: React.FC<AdminProps> = ({ data, onUpdate }) => {
             </div>
             <button 
               onClick={() => handleDelete(item.id, activeTab)}
-              className="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+              className="text-slate-500 hover:text-red-400 p-1 transition-colors"
             >
               <Trash2 size={16} />
             </button>
@@ -398,29 +398,29 @@ const Admin: React.FC<AdminProps> = ({ data, onUpdate }) => {
           <h2 className="text-2xl font-bold text-white flex items-center gap-2">
             <Settings className="text-indigo-500" /> Admin Dashboard
           </h2>
-          <div className="flex bg-slate-700 rounded-lg p-1">
+          <div className="flex bg-slate-700 rounded-lg p-1 overflow-x-auto max-w-full">
             <button 
               onClick={() => setActiveTab('course')}
-              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'course' ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:text-white'}`}
+              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${activeTab === 'course' ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:text-white'}`}
             >
               Courses
             </button>
             <button 
               onClick={() => setActiveTab('project')}
-              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'project' ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:text-white'}`}
+              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${activeTab === 'project' ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:text-white'}`}
             >
               Projects
             </button>
             <button 
               onClick={() => setActiveTab('note')}
-              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'note' ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:text-white'}`}
+              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${activeTab === 'note' ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:text-white'}`}
             >
               Notes
             </button>
           </div>
         </div>
 
-        <div className="p-6 grid lg:grid-cols-2 gap-8">
+        <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Form */}
           <div>
             <h3 className="text-lg font-semibold text-white mb-4 capitalize">Add New {activeTab}</h3>
@@ -537,7 +537,7 @@ const Admin: React.FC<AdminProps> = ({ data, onUpdate }) => {
           </div>
 
           {/* List */}
-          <div className="border-l border-slate-700 pl-0 lg:pl-8 lg:h-[500px] overflow-y-auto">
+          <div className="border-l border-slate-700 pl-0 lg:pl-8 lg:h-[500px] overflow-y-auto mt-8 lg:mt-0">
              <h3 className="text-lg font-semibold text-white mb-4 capitalize">Existing {activeTab === 'note' ? 'Notes' : activeTab + 's'}</h3>
              {renderList()}
           </div>
@@ -629,7 +629,7 @@ export default function App() {
             <h2 className="text-3xl font-bold text-white mb-8 border-l-4 border-indigo-500 pl-4 capitalize">
                 {courseFilter === 'all' ? 'All IT Courses' : `${courseFilter} Courses`}
             </h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {displayedCourses.map(course => (
                 <CourseCard key={course.id} course={course} onClick={handleCourseClick} />
               ))}
@@ -653,7 +653,7 @@ export default function App() {
         {currentPage === 'projects' && (
            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
              <h2 className="text-3xl font-bold text-white mb-8 border-l-4 border-indigo-500 pl-4">Projects</h2>
-             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                {data.projects.map(project => (
                  <ProjectCard key={project.id} project={project} />
                ))}
@@ -665,7 +665,7 @@ export default function App() {
            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
              <h2 className="text-3xl font-bold text-white mb-8 border-l-4 border-indigo-500 pl-4">Student Resources & Notes</h2>
              <p className="text-slate-400 mb-8 max-w-2xl">Download lecture notes, cheat sheets, and practice problems to support your learning.</p>
-             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                {data.notes.map(note => (
                  <NoteCard key={note.id} note={note} onPreview={setPreviewNote} />
                ))}
@@ -681,27 +681,38 @@ export default function App() {
         {currentPage === 'contact' && <Contact />}
 
         {currentPage === 'admin' && (
-          <Admin data={data} onUpdate={handleUpdateData} />
+          <div className="hidden md:block">
+            <Admin data={data} onUpdate={handleUpdateData} />
+          </div>
+        )}
+        
+        {currentPage === 'admin' && (
+          <div className="md:hidden flex flex-col items-center justify-center p-20 text-center">
+             <Settings size={48} className="text-slate-600 mb-4" />
+             <h2 className="text-xl font-bold text-white mb-2">Desktop Only</h2>
+             <p className="text-slate-400">The Admin dashboard is optimized for desktop screens. Please switch to a larger device to manage your content.</p>
+             <button onClick={() => navigate('home')} className="mt-6 px-6 py-2 bg-indigo-600 text-white rounded-lg">Return Home</button>
+          </div>
         )}
       </main>
 
       {/* Note Preview Modal */}
       {previewNote && (
-        <div className="fixed inset-0 z-[60] bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setPreviewNote(null)}>
+        <div className="fixed inset-0 z-[60] bg-black/80 flex items-center justify-center p-2 sm:p-4 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setPreviewNote(null)}>
           <div className="bg-slate-900 w-full max-w-4xl h-[85vh] rounded-xl flex flex-col border border-slate-700 shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-center p-4 border-b border-slate-700 bg-slate-900">
-              <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                <FileText className="text-indigo-500" size={20} />
-                {previewNote.title}
+              <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2 truncate pr-4">
+                <FileText className="text-indigo-500 shrink-0" size={20} />
+                <span className="truncate">{previewNote.title}</span>
               </h3>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
                    <a 
                       href={previewNote.url} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-white text-sm font-semibold transition-colors"
+                      className="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-white text-xs sm:text-sm font-semibold transition-colors whitespace-nowrap"
                    >
-                     <Download size={16} /> Download
+                     <Download size={16} /> <span className="hidden sm:inline">Download</span>
                    </a>
                    <button 
                       onClick={() => setPreviewNote(null)}
@@ -728,7 +739,7 @@ export default function App() {
 
       <footer className="bg-slate-950 border-t border-slate-800 pt-16 pb-8 mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-3 gap-12 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
             <div>
               <div className="flex items-center mb-6">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white font-bold font-mono text-xl shadow-lg shadow-indigo-500/20 ring-1 ring-white/10 mr-3">

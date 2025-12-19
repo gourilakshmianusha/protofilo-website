@@ -28,7 +28,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
     { id: 'projects', label: 'Projects', icon: <Briefcase size={18} /> },
     { id: 'notes', label: 'Notes', icon: <FileText size={18} /> },
     { id: 'contact', label: 'Contact', icon: <Phone size={18} /> },
-    { id: 'admin', label: 'Admin', icon: <Settings size={18} /> },
+    { id: 'admin', label: 'Admin', icon: <Settings size={18} />, desktopOnly: true },
   ];
 
   const handleNav = (id: string) => {
@@ -104,11 +104,11 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile menu - Admin link is filtered out */}
       {isOpen && (
         <div className="md:hidden bg-slate-800 border-b border-slate-700">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            {navItems.map((item) => (
+            {navItems.filter(item => !item.desktopOnly).map((item) => (
               <div key={item.id}>
                 <button
                   onClick={() => handleNav(item.id)}
