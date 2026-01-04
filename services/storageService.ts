@@ -1,6 +1,6 @@
 import { Course, Project, Note, DataState } from '../types';
 
-const STORAGE_KEY = 'devfolio_data_v1';
+const STORAGE_KEY = 'anusha_portfolio_data_v3';
 
 const DEFAULT_COURSES: Course[] = [
   {
@@ -12,60 +12,12 @@ const DEFAULT_COURSES: Course[] = [
     tags: ['C', 'Systems', 'Backend']
   },
   {
-    id: 'cpp-1',
-    title: 'Advanced C++ Development',
-    description: 'Learn object-oriented programming, STL, and modern C++ features for high-performance application development.',
-    level: 'Intermediate',
-    duration: '12 Weeks',
-    tags: ['C++', 'OOP', 'Game Dev']
-  },
-  {
     id: 'java-1',
     title: 'Java Enterprise Essentials',
     description: 'Comprehensive guide to Java SE and EE, focusing on building robust, scalable enterprise applications.',
     level: 'Intermediate',
     duration: '10 Weeks',
     tags: ['Java', 'Backend', 'Enterprise']
-  },
-  {
-    id: 'py-1',
-    title: 'Python for Data Science',
-    description: 'Learn to analyze data, build predictive models, and visualize trends using Python libraries like Pandas and Scikit-learn.',
-    level: 'Intermediate',
-    duration: '8 Weeks',
-    tags: ['Python', 'AI', 'Data']
-  },
-  {
-    id: 'web-1',
-    title: 'Full Stack Web Development',
-    description: 'Build modern, responsive web applications using React, Node.js, and TypeScript from scratch.',
-    level: 'Advanced',
-    duration: '12 Weeks',
-    tags: ['React', 'TypeScript', 'Web']
-  },
-  {
-    id: 'dsa-1',
-    title: 'Data Structures & Algorithms',
-    description: 'Master the fundamental building blocks of computer science. Learn to write efficient, scalable code and ace technical interviews.',
-    level: 'Advanced',
-    duration: '14 Weeks',
-    tags: ['DSA', 'CS', 'Interview']
-  },
-  {
-    id: 'ml-1',
-    title: 'Machine Learning A-Z',
-    description: 'A hands-on guide to building intelligent systems. Covers regression, classification, clustering, and neural networks using Python.',
-    level: 'Advanced',
-    duration: '12 Weeks',
-    tags: ['AI', 'Python', 'ML']
-  },
-  {
-    id: 'devops-1',
-    title: 'DevOps & Cloud Engineering',
-    description: 'Bridge the gap between development and operations. Learn Docker, Kubernetes, Jenkins, and AWS cloud infrastructure.',
-    level: 'Intermediate',
-    duration: '10 Weeks',
-    tags: ['AWS', 'Docker', 'CI/CD']
   }
 ];
 
@@ -75,15 +27,8 @@ const DEFAULT_PROJECTS: Project[] = [
     title: 'E-Commerce Dashboard',
     description: 'A comprehensive analytics dashboard for online retailers featuring real-time sales tracking and inventory management.',
     techStack: ['React', 'D3.js', 'Tailwind'],
-    githubUrl: 'https://github.com/anusha-dev/ecommerce-dash',
-    demoUrl: '#'
-  },
-  {
-    id: 'p-2',
-    title: 'AI Code Assistant',
-    description: 'A VS Code extension that uses generative AI to suggest code completions and refactoring options.',
-    techStack: ['TypeScript', 'Gemini API', 'Node.js'],
-    githubUrl: 'https://github.com/anusha-dev/ai-assistant'
+    githubUrl: 'https://github.com/',
+    demoUrl: 'https://demo.com'
   }
 ];
 
@@ -93,49 +38,25 @@ const DEFAULT_NOTES: Note[] = [
     title: 'C Programming Quick Reference',
     category: 'C',
     url: 'https://www.tutorialspoint.com/cprogramming/cprogramming_tutorial.pdf'
-  },
-  {
-    id: 'n-2',
-    title: 'Java OOP Interview Questions',
-    category: 'Java',
-    url: 'https://www.tutorialspoint.com/java/java_tutorial.pdf'
-  },
-  {
-    id: 'n-3',
-    title: 'React Hooks Cheat Sheet',
-    category: 'Web',
-    url: 'https://react.dev'
-  },
-  {
-    id: 'n-4',
-    title: 'Data Structures & Algorithms Map',
-    category: 'CS Fundamentals',
-    url: 'https://www.geeksforgeeks.org/data-structures/'
-  },
-  {
-    id: 'n-5',
-    title: 'Python Pandas 101',
-    category: 'Data Science',
-    url: 'https://pandas.pydata.org/docs/user_guide/index.html'
-  },
-  {
-    id: 'n-6',
-    title: 'Linux Command Line Basics',
-    category: 'Systems',
-    url: 'https://ubuntu.com/tutorials/command-line-for-beginners'
   }
 ];
 
 export const loadData = (): DataState => {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored) {
-    const parsed = JSON.parse(stored);
-    // Migration for existing data without notes
-    if (!parsed.notes) parsed.notes = DEFAULT_NOTES;
-    // Simple check to see if we should append new default courses to existing data
-    // In a real app we might handle migration more carefully
-    return parsed;
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      // Ensure we have all arrays, even if some were deleted
+      return {
+        courses: Array.isArray(parsed.courses) ? parsed.courses : [],
+        projects: Array.isArray(parsed.projects) ? parsed.projects : [],
+        notes: Array.isArray(parsed.notes) ? parsed.notes : []
+      };
+    }
+  } catch (e) {
+    console.error("Error loading data", e);
   }
+  // If no data exists, return defaults
   return { courses: DEFAULT_COURSES, projects: DEFAULT_PROJECTS, notes: DEFAULT_NOTES };
 };
 

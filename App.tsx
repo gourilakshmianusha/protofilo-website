@@ -1,189 +1,95 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
-import { DataState, ContentType, Course, Note } from './types';
+import { DataState, ContentType, Course, Note, Project } from './types';
 import { loadData, saveData } from './services/storageService';
 import { generateDescription } from './services/geminiService';
-import { Plus, Trash2, Wand2, MapPin, Phone, Mail, FileText, Settings, ArrowLeft, Clock, Award, Target, BookOpen, Linkedin, Github, Twitter, Download, Eye, X, ExternalLink } from 'lucide-react';
+import { Plus, Trash2, Wand2, MapPin, Phone, Mail, FileText, Settings, ArrowLeft, Clock, Award, Target, BookOpen, Linkedin, Github, Twitter, Download, Eye, X, ExternalLink, Image as ImageIcon, Copy, Database, RefreshCw, CheckCircle2 } from 'lucide-react';
 import CourseCard from './components/CourseCard';
 import ProjectCard from './components/ProjectCard';
 import NoteCard from './components/NoteCard';
 
-// -- Sub-Components for Pages --
+// -- Sub-Components --
 
 const Home: React.FC = () => (
   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <div className="text-center py-20">
-      <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-400">
+    <div className="text-center py-10 md:py-20">
+      <h1 className="text-4xl md:text-7xl font-extrabold tracking-tight mb-6 md:mb-8 bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-400">
         Build. Teach. Innovate.
       </h1>
-      <p className="max-w-2xl mx-auto text-xl text-slate-400 mb-10">
+      <p className="max-w-2xl mx-auto text-lg md:text-xl text-slate-400 mb-8 md:mb-10">
         Welcome to my digital garden. I explore complex IT concepts through teaching and build software that matters.
       </p>
-      <div className="flex justify-center gap-4 flex-wrap">
-        <button onClick={() => window.location.hash = 'courses/all'} className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold transition-all">
+      <div className="flex justify-center gap-3 md:gap-4 flex-wrap">
+        <button onClick={() => window.location.hash = 'courses/all'} className="px-6 md:px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold transition-all text-sm md:text-base">
           Explore Courses
         </button>
-        <button onClick={() => window.location.hash = 'projects'} className="px-8 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-semibold transition-all border border-slate-700">
+        <button onClick={() => window.location.hash = 'projects'} className="px-6 md:px-8 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-semibold transition-all border border-slate-700 text-sm md:text-base">
           View Projects
         </button>
-        <button onClick={() => window.location.hash = 'notes'} className="px-8 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-semibold transition-all border border-slate-700">
+        <button onClick={() => window.location.hash = 'notes'} className="px-6 md:px-8 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-semibold transition-all border border-slate-700 text-sm md:text-base">
           Student Notes
         </button>
       </div>
     </div>
     
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mt-8">
       <div className="bg-slate-800 p-6 rounded-xl border border-slate-700">
         <h3 className="text-xl font-bold text-white mb-2">Expert Instruction</h3>
-        <p className="text-slate-400">Master C, C++, Java, Python, and Web Development with structured paths.</p>
+        <p className="text-slate-400">Master programming concepts with structured, industry-relevant paths.</p>
       </div>
       <div className="bg-slate-800 p-6 rounded-xl border border-slate-700">
         <h3 className="text-xl font-bold text-white mb-2">Real World Projects</h3>
-        <p className="text-slate-400">See theory in action through my portfolio of deployed applications.</p>
+        <p className="text-slate-400">Practical application of software engineering principles.</p>
       </div>
       <div className="bg-slate-800 p-6 rounded-xl border border-slate-700">
         <h3 className="text-xl font-bold text-white mb-2">AI Integration</h3>
-        <p className="text-slate-400">Leveraging cutting-edge AI to enhance learning and productivity.</p>
+        <p className="text-slate-400">Leveraging Gemini AI for enhanced productivity and learning.</p>
       </div>
     </div>
   </div>
 );
 
 const CourseDetail: React.FC<{ course: Course; notes: Note[]; onPreview: (note: Note) => void }> = ({ course, notes, onPreview }) => {
-  const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(course.title + " programming code abstract technology high quality")}?width=1200&height=400&nologo=true`;
-
-  // Find related notes based on simple tag/title matching
-  const relatedNotes = notes.filter(note => {
-     const titleMatch = course.title.toLowerCase().includes(note.category.toLowerCase());
-     const tagMatch = course.tags.some(t => t.toLowerCase() === note.category.toLowerCase());
-     return titleMatch || tagMatch;
-  });
+  const imageUrl = course.imageUrl || `https://image.pollinations.ai/prompt/${encodeURIComponent(course.title + " programming code high quality")}?width=1200&height=400&nologo=true`;
+  const relatedNotes = notes.filter(n => course.tags.some(t => n.category.toLowerCase().includes(t.toLowerCase())) || course.title.toLowerCase().includes(n.category.toLowerCase()));
 
   return (
     <div className="animate-in fade-in duration-500">
       <div className="relative h-64 md:h-80 w-full overflow-hidden">
         <img src={imageUrl} alt={course.title} className="w-full h-full object-cover opacity-50" />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
-        <div className="absolute bottom-0 left-0 right-0 p-8 max-w-7xl mx-auto">
-          <button 
-            onClick={() => window.history.back()}
-            className="flex items-center gap-2 text-indigo-400 hover:text-white mb-4 transition-colors"
-          >
-            <ArrowLeft size={20} /> Back to Courses
-          </button>
-          <div className="flex gap-2 mb-2 flex-wrap">
-             {course.tags.map(tag => (
-                <span key={tag} className="px-2 py-1 bg-indigo-600/80 text-white text-xs font-bold rounded uppercase tracking-wider">{tag}</span>
-             ))}
-          </div>
+        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 max-w-7xl mx-auto">
+          <button onClick={() => window.history.back()} className="flex items-center gap-2 text-indigo-400 hover:text-white mb-4 text-sm"><ArrowLeft size={16} /> Back</button>
           <h1 className="text-3xl md:text-5xl font-bold text-white mb-2">{course.title}</h1>
+          <p className="text-indigo-400 font-bold uppercase tracking-widest text-xs">{course.level} LEVEL</p>
         </div>
       </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
-            <div className="bg-slate-800/50 p-6 md:p-8 rounded-2xl border border-slate-700">
-              <h2 className="text-2xl font-bold text-white mb-4">About this Course</h2>
-              <p className="text-lg text-slate-300 leading-relaxed">{course.description}</p>
-              
-              <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                 <div className="p-4 bg-slate-900 rounded-lg border border-slate-700 flex items-center gap-3">
-                    <Target className="text-indigo-400" />
-                    <div>
-                      <p className="text-xs text-slate-500 uppercase font-semibold">Skill Level</p>
-                      <p className="text-white font-medium">{course.level}</p>
-                    </div>
-                 </div>
-                 <div className="p-4 bg-slate-900 rounded-lg border border-slate-700 flex items-center gap-3">
-                    <Clock className="text-indigo-400" />
-                    <div>
-                      <p className="text-xs text-slate-500 uppercase font-semibold">Duration</p>
-                      <p className="text-white font-medium">{course.duration}</p>
-                    </div>
-                 </div>
-              </div>
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-slate-800/50 p-6 rounded-2xl border border-slate-700">
+              <h2 className="text-xl font-bold text-white mb-4">Course Details</h2>
+              <p className="text-slate-300 leading-relaxed">{course.description}</p>
             </div>
-
-            <div className="bg-slate-800/50 p-6 md:p-8 rounded-2xl border border-slate-700">
-               <h2 className="text-2xl font-bold text-white mb-6">What You Will Learn</h2>
-               <ul className="space-y-3">
-                 {[1,2,3,4].map((i) => (
-                   <li key={i} className="flex gap-3 text-slate-300">
-                     <Award className="text-emerald-500 shrink-0" size={20} />
-                     <span>Comprehensive understanding of {course.title} core concepts and advanced techniques.</span>
-                   </li>
-                 ))}
-                 <li className="flex gap-3 text-slate-300">
-                    <Award className="text-emerald-500 shrink-0" size={20} />
-                    <span>Real-world application development and problem-solving skills.</span>
-                 </li>
-               </ul>
-            </div>
-
-            {/* Related Notes Section */}
             {relatedNotes.length > 0 && (
-                <div className="bg-slate-800/50 p-6 md:p-8 rounded-2xl border border-slate-700">
-                    <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-                        <FileText className="text-indigo-500" /> Course Notes & Materials
-                    </h2>
+                <div className="bg-slate-800/50 p-6 rounded-2xl border border-slate-700">
+                    <h2 className="text-xl font-bold text-white mb-6">Course Materials</h2>
                     <div className="grid grid-cols-1 gap-4">
                         {relatedNotes.map(note => (
-                             <div key={note.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-900 rounded-lg border border-slate-700 hover:border-indigo-500 transition-colors gap-4">
+                             <div key={note.id} className="flex items-center justify-between p-4 bg-slate-900 rounded-lg border border-slate-700">
                                  <div className="flex items-center gap-3">
-                                     <div className="p-2 bg-indigo-900/30 rounded text-indigo-400">
-                                       <FileText size={20} />
-                                     </div>
-                                     <div>
-                                        <h4 className="font-semibold text-white">{note.title}</h4>
-                                        <span className="text-xs text-slate-500">Resource Category: {note.category}</span>
-                                     </div>
+                                     <FileText className="text-indigo-400" size={20} />
+                                     <h4 className="font-semibold text-white truncate text-sm">{note.title}</h4>
                                  </div>
-                                 <div className="flex gap-2 self-end sm:self-auto">
-                                     <button 
-                                        onClick={() => onPreview(note)}
-                                        className="p-2 text-slate-400 hover:text-indigo-400 hover:bg-slate-700 rounded-full transition-all"
-                                        title="Preview"
-                                     >
-                                        <Eye size={20} />
-                                     </button>
-                                     <a 
-                                        href={note.url} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer"
-                                        className="p-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-full transition-all"
-                                        title="Download"
-                                     >
-                                        <Download size={20} />
-                                     </a>
+                                 <div className="flex gap-2">
+                                     <button onClick={() => onPreview(note)} className="p-2 text-slate-400 hover:text-indigo-400"><Eye size={18} /></button>
+                                     <a href={note.url} target="_blank" className="p-2 text-slate-400 hover:text-white"><Download size={18} /></a>
                                  </div>
                              </div>
                         ))}
                     </div>
                 </div>
             )}
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            <div className="bg-indigo-900/20 p-6 rounded-2xl border border-indigo-500/30 sticky top-24">
-              <h3 className="text-xl font-bold text-white mb-4">Ready to Start?</h3>
-              <p className="text-slate-400 mb-6 text-sm">Enroll now to get access to full course materials, assignments, and mentorship.</p>
-              
-              <button 
-                onClick={() => window.location.hash = 'contact'}
-                className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-all shadow-lg hover:shadow-indigo-500/25 mb-3"
-              >
-                Contact to Enroll
-              </button>
-              <button 
-                onClick={() => window.location.hash = 'notes'}
-                className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-semibold transition-all border border-slate-600 flex items-center justify-center gap-2"
-              >
-                <BookOpen size={18} /> Browse All Notes
-              </button>
-            </div>
           </div>
         </div>
       </div>
@@ -192,95 +98,60 @@ const CourseDetail: React.FC<{ course: Course; notes: Note[]; onPreview: (note: 
 };
 
 const Contact: React.FC = () => (
-  <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-    <h2 className="text-3xl font-bold text-white mb-8 border-l-4 border-indigo-500 pl-4">Contact Me</h2>
-    <div className="bg-slate-800 rounded-xl p-8 border border-slate-700 shadow-xl">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-        <div className="space-y-8">
-          <div className="flex items-start gap-4">
-            <div className="p-3 bg-indigo-900/30 rounded-lg text-indigo-400 mt-1">
-              <MapPin size={24} />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-white mb-1">Visit Us</h3>
-              <p className="text-slate-300">
-                #204 Flat, Swastik Plaza<br />
-                Opposite to Police Station<br />
-                Near City Center, Hublli - 580032
-              </p>
-            </div>
+  <div className="max-w-4xl mx-auto px-4 py-12">
+    <div className="bg-slate-800 rounded-2xl border border-slate-700 p-8 shadow-xl">
+      <h2 className="text-3xl font-bold text-white mb-6">Get In Touch</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="space-y-6">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-indigo-900/30 rounded-lg text-indigo-400"><Mail size={24} /></div>
+            <div><p className="text-xs text-slate-500 font-bold">EMAIL</p><p className="font-semibold">atomceatomce@gmail.com</p></div>
           </div>
-
-          <div className="flex items-start gap-4">
-            <div className="p-3 bg-indigo-900/30 rounded-lg text-indigo-400 mt-1">
-              <Phone size={24} />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-white mb-1">Call Me</h3>
-              <p className="text-slate-300 text-xl font-mono">9035066863</p>
-              <p className="text-slate-500 text-sm mt-1">Available Mon-Sat, 9AM - 6PM</p>
-            </div>
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-indigo-900/30 rounded-lg text-indigo-400"><Phone size={24} /></div>
+            <div><p className="text-xs text-slate-500 font-bold">PHONE</p><p className="font-semibold">9035066863</p></div>
           </div>
-
-          <div className="flex items-start gap-4">
-            <div className="p-3 bg-indigo-900/30 rounded-lg text-indigo-400 mt-1">
-              <Mail size={24} />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-white mb-1">Email</h3>
-              <p className="text-slate-300">atomceatomce@gmail.com</p>
-            </div>
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-indigo-900/30 rounded-lg text-indigo-400"><MapPin size={24} /></div>
+            <div><p className="text-xs text-slate-500 font-bold">LOCATION</p><p className="font-semibold">Hublli, Swastik Plaza</p></div>
           </div>
         </div>
-
-        {/* Map Container */}
-        <div className="h-full min-h-[350px] bg-slate-900 rounded-lg overflow-hidden border border-slate-700 relative shadow-inner">
-             <iframe 
-                width="100%" 
-                height="100%" 
-                className="absolute inset-0"
-                style={{ border: 0 }}
-                loading="lazy" 
-                allowFullScreen 
-                title="Location Map"
-                src="https://maps.google.com/maps?q=Swastik%20Plaza%2C%20Hubballi&t=&z=15&ie=UTF8&iwloc=&output=embed">
-            </iframe>
+        <div className="flex gap-4 items-end justify-center md:justify-start">
+          <a href="#" className="p-4 bg-slate-700 hover:bg-indigo-600 rounded-xl transition-all text-white"><Linkedin size={24} /></a>
+          <a href="#" className="p-4 bg-slate-700 hover:bg-indigo-600 rounded-xl transition-all text-white"><Github size={24} /></a>
         </div>
-      </div>
-      
-      <div className="mt-10 p-4 bg-slate-900/50 rounded-lg border border-slate-700/50">
-        <p className="text-center text-slate-400 text-sm">
-          Looking to join a course or start a project? Feel free to drop by or give a call!
-        </p>
       </div>
     </div>
   </div>
 );
 
 // -- Admin Component --
+
 interface AdminProps {
   data: DataState;
   onUpdate: (newData: DataState) => void;
 }
 
 const Admin: React.FC<AdminProps> = ({ data, onUpdate }) => {
-  const [activeTab, setActiveTab] = useState<ContentType>('course');
+  const [activeTab, setActiveTab] = useState<ContentType | 'sync'>('course');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [syncCode, setSyncCode] = useState('');
+  const [copied, setCopied] = useState(false);
   
-  // Form State
+  // Form States
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [tags, setTags] = useState(''); // Comma separated for simplicity (or category for notes)
-  const [noteUrl, setNoteUrl] = useState(''); // Specific for notes
-  const [demoUrl, setDemoUrl] = useState(''); // Specific for projects
-  const [repoUrl, setRepoUrl] = useState(''); // Specific for projects
-  const [level, setLevel] = useState<'Beginner' | 'Intermediate' | 'Advanced'>('Beginner'); // Course Level
+  const [tags, setTags] = useState('');
+  const [noteUrl, setNoteUrl] = useState('');
+  const [demoUrl, setDemoUrl] = useState('');
+  const [repoUrl, setRepoUrl] = useState('');
+  const [customImageUrl, setCustomImageUrl] = useState('');
+  const [level, setLevel] = useState<'Beginner' | 'Intermediate' | 'Advanced'>('Beginner');
 
   const handleGenerate = async () => {
-    if (activeTab === 'note') return; // Skip AI for notes
-    if (!title) return alert('Please enter a title first');
+    if (!title) return alert('Enter a title first');
     setIsGenerating(true);
-    const desc = await generateDescription(title, activeTab, tags);
+    const desc = await generateDescription(title, activeTab === 'project' ? 'project' : 'course', tags);
     setDescription(desc);
     setIsGenerating(false);
   };
@@ -289,266 +160,135 @@ const Admin: React.FC<AdminProps> = ({ data, onUpdate }) => {
     e.preventDefault();
     const id = Date.now().toString();
     const tagArray = tags.split(',').map(t => t.trim()).filter(Boolean);
-
     const newData = { ...data };
 
     if (activeTab === 'course') {
-      newData.courses.push({
-        id,
-        title,
-        description,
-        level: level, 
-        duration: 'Self-paced',
-        tags: tagArray
-      });
+      newData.courses.push({ id, title, description, level, duration: 'Self-paced', tags: tagArray, imageUrl: customImageUrl || undefined });
     } else if (activeTab === 'project') {
-      newData.projects.push({
-        id,
-        title,
-        description,
-        techStack: tagArray,
-        githubUrl: repoUrl || undefined,
-        demoUrl: demoUrl || undefined
-      });
+      newData.projects.push({ id, title, description, techStack: tagArray, githubUrl: repoUrl || undefined, demoUrl: demoUrl || undefined, imageUrl: customImageUrl || undefined });
     } else if (activeTab === 'note') {
-      newData.notes.push({
-        id,
-        title,
-        category: tags || 'General', // Using tags field as category for notes
-        url: noteUrl || '#'
-      });
+      newData.notes.push({ id, title, category: tags || 'General', url: noteUrl || '#' });
     }
     
     onUpdate(newData);
-    setTitle('');
-    setDescription('');
-    setTags('');
-    setNoteUrl('');
-    setDemoUrl('');
-    setRepoUrl('');
+    setTitle(''); setDescription(''); setTags(''); setNoteUrl(''); setDemoUrl(''); setRepoUrl(''); setCustomImageUrl('');
+    alert('Added successfully!');
   };
 
-  const handleDelete = (id: string, type: ContentType) => {
-    const newData = { ...data };
-    if (type === 'course') {
-      newData.courses = newData.courses.filter(c => c.id !== id);
-    } else if (type === 'project') {
-      newData.projects = newData.projects.filter(p => p.id !== id);
-    } else if (type === 'note') {
-      newData.notes = newData.notes.filter(n => n.id !== id);
+  const handleExport = () => {
+    const code = btoa(JSON.stringify(data));
+    setSyncCode(code);
+    navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleImport = () => {
+    if (!syncCode) return alert('Paste the code first!');
+    try {
+      const decoded = JSON.parse(atob(syncCode));
+      if (decoded.courses || decoded.projects || decoded.notes) {
+        onUpdate(decoded);
+        alert('Success! Page will now reload to apply changes.');
+        window.location.reload();
+      } else {
+        alert('Invalid sync code format.');
+      }
+    } catch (e) {
+      alert('Error: Make sure you copied the full code from your desktop.');
     }
+  };
+
+  const handleDelete = (id: string, type: string) => {
+    if (!confirm('Are you sure you want to delete this?')) return;
+    const newData = { ...data };
+    if (type === 'course') newData.courses = newData.courses.filter(c => c.id !== id);
+    else if (type === 'project') newData.projects = newData.projects.filter(p => p.id !== id);
+    else if (type === 'note') newData.notes = newData.notes.filter(n => n.id !== id);
     onUpdate(newData);
   };
 
-  const renderList = () => {
-    let items: any[] = [];
-    if (activeTab === 'course') items = data.courses;
-    else if (activeTab === 'project') items = data.projects;
-    else items = data.notes;
-
-    return (
-      <div className="space-y-3">
-        {items.map((item) => (
-          <div key={item.id} className="bg-slate-900 p-3 rounded-lg border border-slate-700 flex justify-between items-start group">
-            <div className="flex-1 min-w-0">
-              <h4 className="font-medium text-white truncate">{item.title}</h4>
-              {activeTab === 'course' && (
-                <span className="text-xs text-indigo-400 bg-indigo-900/30 px-1.5 py-0.5 rounded">{item.level}</span>
-              )}
-              {activeTab === 'note' && (
-                <a href={(item as any).url} target="_blank" className="text-xs text-indigo-400 hover:underline">View File</a>
-              )}
-              {activeTab === 'project' && (
-                 <div className="flex flex-wrap gap-2 mt-1">
-                   {(item as any).demoUrl && (
-                     <a href={(item as any).demoUrl} target="_blank" className="text-xs text-indigo-400 hover:underline flex items-center gap-1">
-                       <ExternalLink size={10} /> View Site
-                     </a>
-                   )}
-                   {(item as any).githubUrl && (
-                     <a href={(item as any).githubUrl} target="_blank" className="text-xs text-indigo-400 hover:underline flex items-center gap-1">
-                       <Github size={10} /> View Code
-                     </a>
-                   )}
-                 </div>
-              )}
-              {activeTab !== 'note' && (
-                <p className="text-xs text-slate-500 mt-1 line-clamp-1">{(item as any).description}</p>
-              )}
-            </div>
-            <button 
-              onClick={() => handleDelete(item.id, activeTab)}
-              className="text-slate-500 hover:text-red-400 p-1 transition-colors"
-            >
-              <Trash2 size={16} />
-            </button>
-          </div>
-        ))}
-        {items.length === 0 && (
-          <p className="text-slate-500 text-sm italic">No items found.</p>
-        )}
-      </div>
-    );
-  };
-
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
-      <div className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
-        <div className="p-6 border-b border-slate-700 bg-slate-900/50 flex flex-wrap gap-4 justify-between items-center">
-          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Settings className="text-indigo-500" /> Admin Dashboard
-          </h2>
-          <div className="flex bg-slate-700 rounded-lg p-1 overflow-x-auto max-w-full">
-            <button 
-              onClick={() => setActiveTab('course')}
-              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${activeTab === 'course' ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:text-white'}`}
-            >
-              Courses
+    <div className="max-w-5xl mx-auto px-4 py-8">
+      <div className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden shadow-2xl">
+        <div className="p-2 bg-slate-900/80 border-b border-slate-700 flex flex-wrap justify-center gap-1 md:gap-2">
+          {['course', 'project', 'note', 'sync'].map((tab) => (
+            <button key={tab} onClick={() => setActiveTab(tab as any)} className={`px-4 py-2 rounded-lg text-xs font-bold capitalize transition-all ${activeTab === tab ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'}`}>
+              {tab === 'sync' ? <Database size={14} className="inline mr-1" /> : null}
+              {tab}s
             </button>
-            <button 
-              onClick={() => setActiveTab('project')}
-              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${activeTab === 'project' ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:text-white'}`}
-            >
-              Projects
-            </button>
-            <button 
-              onClick={() => setActiveTab('note')}
-              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${activeTab === 'note' ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:text-white'}`}
-            >
-              Notes
-            </button>
-          </div>
+          ))}
         </div>
 
-        <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Form */}
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-4 capitalize">Add New {activeTab}</h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">Title</label>
-                <input 
-                  type="text" 
-                  value={title} 
-                  onChange={e => setTitle(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
-                  placeholder={activeTab === 'note' ? "e.g., C++ Cheat Sheet" : "e.g., Advanced Java Patterns"}
-                  required
-                />
+        <div className="p-6">
+          {activeTab === 'sync' ? (
+            <div className="max-w-xl mx-auto space-y-8 py-4 text-center">
+               <div className="bg-indigo-900/20 p-6 rounded-2xl border border-indigo-500/30">
+                  <h3 className="text-lg font-bold text-white mb-2">Device Synchronization</h3>
+                  <p className="text-slate-400 text-sm mb-6">Since your data is stored on this device, use this tool to move it to your phone or another computer.</p>
+                  <button onClick={handleExport} className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all">
+                    {copied ? <CheckCircle2 size={18} /> : <Copy size={18} />}
+                    {copied ? 'Copied to Clipboard!' : 'Export All Data as Code'}
+                  </button>
+               </div>
+               <div className="space-y-4">
+                  <h3 className="text-lg font-bold text-white">Import Data</h3>
+                  <textarea value={syncCode} onChange={e => setSyncCode(e.target.value)} className="w-full h-32 bg-slate-900 border border-slate-700 rounded-lg p-3 text-white text-[10px] font-mono outline-none focus:ring-1 focus:ring-indigo-500" placeholder="Paste your sync code here..."></textarea>
+                  <button onClick={handleImport} className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-all">
+                    <RefreshCw size={18} /> Import & Refresh Website
+                  </button>
+               </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <h3 className="text-lg font-bold text-white mb-2">New {activeTab}</h3>
+                <input type="text" value={title} onChange={e => setTitle(e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Title" required />
+                <input type="text" value={tags} onChange={e => setTags(e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder={activeTab === 'note' ? "Category" : "Tags (comma separated)"} />
+                {activeTab !== 'note' && <input type="url" value={customImageUrl} onChange={e => setCustomImageUrl(e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white text-sm" placeholder="Custom Image URL (Optional)" />}
+                {activeTab === 'project' && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <input type="url" value={demoUrl} onChange={e => setDemoUrl(e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-3 text-white text-xs" placeholder="Live Site" />
+                    <input type="url" value={repoUrl} onChange={e => setRepoUrl(e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-3 text-white text-xs" placeholder="GitHub" />
+                  </div>
+                )}
+                {activeTab === 'note' ? (
+                  <input type="url" value={noteUrl} onChange={e => setNoteUrl(e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white text-sm" placeholder="File URL (Drive/PDF)" required />
+                ) : (
+                  <div className="space-y-1">
+                    <div className="flex justify-between items-center px-1"><label className="text-[10px] text-slate-500 uppercase font-bold">Description</label><button type="button" onClick={handleGenerate} disabled={isGenerating || !title} className="text-[10px] text-indigo-400 font-bold flex items-center gap-1"><Wand2 size={12} /> AI AUTO-WRITE</button></div>
+                    <textarea value={description} onChange={e => setDescription(e.target.value)} className="w-full h-32 bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white text-sm outline-none resize-none focus:ring-2 focus:ring-indigo-500" placeholder="Tell us more about this item..." required />
+                  </div>
+                )}
+                <button type="submit" className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-lg flex items-center justify-center gap-2 transition-all"><Plus size={20} /> Add to Portfolio</button>
+              </form>
+
+              <div className="space-y-4">
+                <h3 className="text-lg font-bold text-white mb-2">Existing Items</h3>
+                <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+                  {(activeTab === 'course' ? data.courses : activeTab === 'project' ? data.projects : data.notes).map((item) => (
+                    <div key={item.id} className="bg-slate-900 p-4 rounded-xl border border-slate-700 flex justify-between items-center group hover:border-slate-500 transition-colors">
+                      <div className="min-w-0 pr-4">
+                        <h4 className="font-bold text-white text-sm truncate">{item.title}</h4>
+                        <p className="text-[10px] text-slate-500 truncate mt-1">{activeTab.toUpperCase()} • {item.id}</p>
+                      </div>
+                      <button onClick={() => handleDelete(item.id, activeTab)} className="text-slate-600 hover:text-red-400 p-2 transition-colors"><Trash2 size={18} /></button>
+                    </div>
+                  ))}
+                  {(activeTab === 'course' ? data.courses : activeTab === 'project' ? data.projects : data.notes).length === 0 && (
+                    <p className="text-slate-500 text-center py-10 italic">No {activeTab}s found.</p>
+                  )}
+                </div>
               </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">
-                  {activeTab === 'note' ? 'Category' : 'Tags / Tech Stack (comma separated)'}
-                </label>
-                <input 
-                  type="text" 
-                  value={tags} 
-                  onChange={e => setTags(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
-                  placeholder={activeTab === 'note' ? "e.g., Java" : "e.g., Java, Spring, Hibernate"}
-                />
-              </div>
-
-              {activeTab === 'course' && (
-                <div>
-                  <label className="block text-sm font-medium text-slate-400 mb-1">Level</label>
-                  <select 
-                    value={level} 
-                    onChange={e => setLevel(e.target.value as any)}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
-                  >
-                    <option value="Beginner">Beginner</option>
-                    <option value="Intermediate">Intermediate</option>
-                    <option value="Advanced">Advanced</option>
-                  </select>
-                </div>
-              )}
-
-              {activeTab === 'project' && (
-                <>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-400 mb-1">Project Website URL (Demo)</label>
-                    <input 
-                      type="url" 
-                      value={demoUrl} 
-                      onChange={e => setDemoUrl(e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
-                      placeholder="https://my-project.com"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-400 mb-1">GitHub Repository URL</label>
-                    <input 
-                      type="url" 
-                      value={repoUrl} 
-                      onChange={e => setRepoUrl(e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
-                      placeholder="https://github.com/username/repo"
-                    />
-                  </div>
-                </>
-              )}
-
-              {activeTab === 'note' ? (
-                <div>
-                  <label className="block text-sm font-medium text-slate-400 mb-1">File URL / Drive Link</label>
-                  <input 
-                    type="url" 
-                    value={noteUrl} 
-                    onChange={e => setNoteUrl(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
-                    placeholder="https://drive.google.com/..."
-                    required
-                  />
-                  <p className="text-xs text-slate-500 mt-1">Paste a link to your Google Drive or DropBox file.</p>
-                </div>
-              ) : (
-                <div>
-                  <div className="flex justify-between items-end mb-1">
-                    <label className="block text-sm font-medium text-slate-400">Description</label>
-                    <button 
-                      type="button" 
-                      onClick={handleGenerate}
-                      disabled={isGenerating || !title}
-                      className="text-xs flex items-center gap-1 text-indigo-400 hover:text-indigo-300 disabled:opacity-50"
-                    >
-                      <Wand2 size={12} />
-                      {isGenerating ? 'Thinking...' : 'Generate with AI'}
-                    </button>
-                  </div>
-                  <textarea 
-                    value={description} 
-                    onChange={e => setDescription(e.target.value)}
-                    className="w-full h-32 bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 outline-none resize-none"
-                    placeholder="Description..."
-                    required
-                  />
-                </div>
-              )}
-
-              <button 
-                type="submit"
-                className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors"
-              >
-                <Plus size={18} /> Add Item
-              </button>
-            </form>
-          </div>
-
-          {/* List */}
-          <div className="border-l border-slate-700 pl-0 lg:pl-8 lg:h-[500px] overflow-y-auto mt-8 lg:mt-0">
-             <h3 className="text-lg font-semibold text-white mb-4 capitalize">Existing {activeTab === 'note' ? 'Notes' : activeTab + 's'}</h3>
-             {renderList()}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 };
 
-
-// -- Main App Component --
+// -- Main Application Entry --
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -559,236 +299,96 @@ export default function App() {
 
   useEffect(() => {
     setData(loadData());
-    
-    // Hash router handler
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '');
-      
       if (hash.startsWith('course/')) {
-        // Check if it's a detail view or a filter view
         const part = hash.split('/')[1];
-        if (part === 'beginner' || part === 'intermediate' || part === 'advanced' || part === 'all') {
-             setCourseFilter(part);
-             setCurrentPage('courses');
-             setSelectedCourseId(null);
-        } else {
-             // It's an ID
-             setSelectedCourseId(part);
-             setCurrentPage('course-detail');
-        }
-      } else if (hash.startsWith('courses')) {
-          setCourseFilter('all');
-          setCurrentPage('courses');
-          setSelectedCourseId(null);
-      } else if (hash) {
-        setCurrentPage(hash);
-        setSelectedCourseId(null);
-      } else {
-        setCurrentPage('home');
-        setSelectedCourseId(null);
-      }
+        if (['beginner', 'intermediate', 'advanced', 'all'].includes(part)) { setCourseFilter(part); setCurrentPage('courses'); setSelectedCourseId(null); }
+        else { setSelectedCourseId(part); setCurrentPage('course-detail'); }
+      } else if (hash.startsWith('courses')) { setCourseFilter('all'); setCurrentPage('courses'); setSelectedCourseId(null); }
+      else if (hash) { setCurrentPage(hash); setSelectedCourseId(null); }
+      else { setCurrentPage('home'); setSelectedCourseId(null); }
     };
-
     window.addEventListener('hashchange', handleHashChange);
-    handleHashChange(); // Init
-    
+    handleHashChange();
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  const handleUpdateData = (newData: DataState) => {
-    setData(newData);
-    saveData(newData);
+  const handleUpdateData = (newData: DataState) => { 
+    setData(newData); 
+    saveData(newData); 
   };
 
-  const navigate = (page: string) => {
-    window.location.hash = page;
-  };
+  const navigate = (page: string) => { window.location.hash = page; };
+  const handleCourseClick = (id: string) => { window.location.hash = `course/${id}`; };
 
-  const handleCourseClick = (id: string) => {
-    window.location.hash = `course/${id}`;
-  };
-
-  // Resolve selected course object
   const selectedCourse = selectedCourseId ? data.courses.find(c => c.id === selectedCourseId) : null;
-  
-  // Filter courses for display
-  const displayedCourses = data.courses.filter(course => {
-      if (courseFilter === 'all') return true;
-      return course.level.toLowerCase() === courseFilter.toLowerCase();
-  });
+  const displayedCourses = data.courses.filter(c => courseFilter === 'all' || c.level.toLowerCase() === courseFilter.toLowerCase());
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans overflow-x-hidden selection:bg-indigo-500/30">
       <Navbar currentPage={currentPage} onNavigate={navigate} />
-
-      <main className="flex-1">
+      <main className="flex-1 animate-in fade-in duration-500">
         {currentPage === 'home' && <Home />}
-        
         {currentPage === 'courses' && (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <h2 className="text-3xl font-bold text-white mb-8 border-l-4 border-indigo-500 pl-4 capitalize">
-                {courseFilter === 'all' ? 'All IT Courses' : `${courseFilter} Courses`}
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {displayedCourses.map(course => (
-                <CourseCard key={course.id} course={course} onClick={handleCourseClick} />
-              ))}
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-8 border-l-4 border-indigo-500 pl-4 capitalize">{courseFilter === 'all' ? 'IT Training Courses' : `${courseFilter} Courses`}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {displayedCourses.map(c => <CourseCard key={c.id} course={c} onClick={handleCourseClick} />)}
             </div>
-            {displayedCourses.length === 0 && (
-                <div className="text-center py-20 bg-slate-800 rounded-xl border border-slate-700">
-                    <p className="text-slate-400">No courses found for this level.</p>
-                </div>
-            )}
           </div>
         )}
-
-        {currentPage === 'course-detail' && selectedCourse && (
-          <CourseDetail course={selectedCourse} notes={data.notes} onPreview={setPreviewNote} />
-        )}
-
-        {currentPage === 'course-detail' && !selectedCourse && (
-           <div className="p-12 text-center text-slate-400">Course not found.</div>
-        )}
-
+        {currentPage === 'course-detail' && selectedCourse && <CourseDetail course={selectedCourse} notes={data.notes} onPreview={setPreviewNote} />}
         {currentPage === 'projects' && (
-           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-             <h2 className="text-3xl font-bold text-white mb-8 border-l-4 border-indigo-500 pl-4">Projects</h2>
-             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-               {data.projects.map(project => (
-                 <ProjectCard key={project.id} project={project} />
-               ))}
-             </div>
-           </div>
-        )}
-
-        {currentPage === 'notes' && (
-           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-             <h2 className="text-3xl font-bold text-white mb-8 border-l-4 border-indigo-500 pl-4">Student Resources & Notes</h2>
-             <p className="text-slate-400 mb-8 max-w-2xl">Download lecture notes, cheat sheets, and practice problems to support your learning.</p>
+           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+             <h2 className="text-2xl md:text-3xl font-bold text-white mb-8 border-l-4 border-indigo-500 pl-4">Project Portfolio</h2>
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-               {data.notes.map(note => (
-                 <NoteCard key={note.id} note={note} onPreview={setPreviewNote} />
-               ))}
+               {data.projects.map(p => <ProjectCard key={p.id} project={p} />)}
              </div>
-             {data.notes.length === 0 && (
-                <div className="text-center py-10 bg-slate-800 rounded-xl border border-slate-700">
-                    <p className="text-slate-400">No notes available yet. Check back soon!</p>
-                </div>
-             )}
            </div>
         )}
-
+        {currentPage === 'notes' && (
+           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+             <h2 className="text-2xl md:text-3xl font-bold text-white mb-8 border-l-4 border-indigo-500 pl-4">Study Resources</h2>
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+               {data.notes.map(n => <NoteCard key={n.id} note={n} onPreview={setPreviewNote} />)}
+             </div>
+           </div>
+        )}
         {currentPage === 'contact' && <Contact />}
-
-        {currentPage === 'admin' && (
-          <div className="hidden md:block">
-            <Admin data={data} onUpdate={handleUpdateData} />
-          </div>
-        )}
-        
-        {currentPage === 'admin' && (
-          <div className="md:hidden flex flex-col items-center justify-center p-20 text-center">
-             <Settings size={48} className="text-slate-600 mb-4" />
-             <h2 className="text-xl font-bold text-white mb-2">Desktop Only</h2>
-             <p className="text-slate-400">The Admin dashboard is optimized for desktop screens. Please switch to a larger device to manage your content.</p>
-             <button onClick={() => navigate('home')} className="mt-6 px-6 py-2 bg-indigo-600 text-white rounded-lg">Return Home</button>
-          </div>
-        )}
+        {currentPage === 'admin' && <Admin data={data} onUpdate={handleUpdateData} />}
       </main>
 
-      {/* Note Preview Modal */}
+      {/* Global Note Preview Modal */}
       {previewNote && (
-        <div className="fixed inset-0 z-[60] bg-black/80 flex items-center justify-center p-2 sm:p-4 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setPreviewNote(null)}>
-          <div className="bg-slate-900 w-full max-w-4xl h-[85vh] rounded-xl flex flex-col border border-slate-700 shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
-            <div className="flex justify-between items-center p-4 border-b border-slate-700 bg-slate-900">
-              <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2 truncate pr-4">
-                <FileText className="text-indigo-500 shrink-0" size={20} />
-                <span className="truncate">{previewNote.title}</span>
-              </h3>
-              <div className="flex items-center gap-2 sm:gap-3">
-                   <a 
-                      href={previewNote.url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-white text-xs sm:text-sm font-semibold transition-colors whitespace-nowrap"
-                   >
-                     <Download size={16} /> <span className="hidden sm:inline">Download</span>
-                   </a>
-                   <button 
-                      onClick={() => setPreviewNote(null)}
-                      className="p-2 hover:bg-slate-800 rounded-full text-slate-400 hover:text-white transition-colors"
-                   >
-                     <X size={24} />
-                   </button>
+        <div className="fixed inset-0 z-[60] bg-black/95 flex items-center justify-center p-2 backdrop-blur-sm animate-in zoom-in-95 duration-200" onClick={() => setPreviewNote(null)}>
+          <div className="bg-slate-900 w-full max-w-5xl h-[90vh] rounded-2xl flex flex-col border border-slate-700 shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center p-4 border-b border-slate-700 bg-slate-900/50">
+              <h3 className="text-sm font-bold text-white truncate pr-4">{previewNote.title}</h3>
+              <div className="flex items-center gap-2">
+                   <a href={previewNote.url} target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-white text-xs font-bold transition-all"><Download size={14} className="inline mr-1" /> Download</a>
+                   <button onClick={() => setPreviewNote(null)} className="p-2 text-slate-400 hover:text-white"><X size={20} /></button>
               </div>
             </div>
-            <div className="flex-1 bg-slate-800 relative">
-               <iframe 
-                  src={previewNote.url} 
-                  className="w-full h-full bg-white" 
-                  title="Note Preview"
-                  sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-               />
-               <div className="absolute inset-0 -z-10 flex items-center justify-center text-slate-500">
-                  Loading preview...
-               </div>
-            </div>
+            <iframe src={previewNote.url} className="flex-1 bg-white" title="Preview" sandbox="allow-same-origin allow-scripts" />
           </div>
         </div>
       )}
 
-      <footer className="bg-slate-950 border-t border-slate-800 pt-16 pb-8 mt-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
-            <div>
-              <div className="flex items-center mb-6">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white font-bold font-mono text-xl shadow-lg shadow-indigo-500/20 ring-1 ring-white/10 mr-3">
-                  {`{A}`}
-                </div>
-                <span className="font-bold text-2xl tracking-tight text-white">Anusha</span>
-              </div>
-              <p className="text-slate-400 leading-relaxed">
-                Empowering students with practical IT skills and building the next generation of software solutions.
-              </p>
-              <div className="flex gap-4 mt-6">
-                 <a href="https://linkedin.com" className="p-2 bg-slate-900 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"><Linkedin size={20} /></a>
-                 <a href="https://github.com/anusha-dev" className="p-2 bg-slate-900 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"><Github size={20} /></a>
-                 <a href="https://twitter.com" className="p-2 bg-slate-900 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"><Twitter size={20} /></a>
-              </div>
-            </div>
-
-            <div>
-              <h4 className="text-lg font-bold text-white mb-6">Quick Links</h4>
-              <ul className="space-y-3">
-                <li><button onClick={() => navigate('courses/all')} className="text-slate-400 hover:text-indigo-400 transition-colors">All Courses</button></li>
-                <li><button onClick={() => navigate('projects')} className="text-slate-400 hover:text-indigo-400 transition-colors">Portfolio Projects</button></li>
-                <li><button onClick={() => navigate('notes')} className="text-slate-400 hover:text-indigo-400 transition-colors">Student Notes</button></li>
-                <li><button onClick={() => navigate('contact')} className="text-slate-400 hover:text-indigo-400 transition-colors">Contact Support</button></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-lg font-bold text-white mb-6">Contact Info</h4>
-              <ul className="space-y-4">
-                <li className="flex items-start gap-3 text-slate-400">
-                  <MapPin className="shrink-0 text-indigo-500" size={20} />
-                  <span>#204 Flat, Swastik Plaza, Opp. Police Station, Hublli - 580032</span>
-                </li>
-                <li className="flex items-center gap-3 text-slate-400">
-                  <Phone className="shrink-0 text-indigo-500" size={20} />
-                  <span>9035066863</span>
-                </li>
-                <li className="flex items-center gap-3 text-slate-400">
-                  <Mail className="shrink-0 text-indigo-500" size={20} />
-                  <span>atomceatomce@gmail.com</span>
-                </li>
-              </ul>
-            </div>
+      <footer className="bg-slate-950 border-t border-slate-800 py-12 mt-12">
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <div className="flex items-center justify-center mb-6">
+            <div className="w-10 h-10 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold mr-3">{`{A}`}</div>
+            <span className="font-bold text-xl text-white">Anusha Portfolio</span>
           </div>
-          
-          <div className="pt-8 border-t border-slate-900 text-center text-slate-500 text-sm">
-            <p>&copy; {new Date().getFullYear()} Anusha. All rights reserved.</p>
+          <p className="text-slate-500 text-xs max-w-md mx-auto mb-8">Professional instructor and developer providing quality IT training and software solutions.</p>
+          <div className="flex justify-center gap-6 mb-8 text-xs font-bold uppercase tracking-widest text-slate-400">
+            <button onClick={() => navigate('courses')} className="hover:text-indigo-400 transition-colors">Courses</button>
+            <button onClick={() => navigate('projects')} className="hover:text-indigo-400 transition-colors">Portfolio</button>
+            <button onClick={() => navigate('notes')} className="hover:text-indigo-400 transition-colors">Notes</button>
+            <button onClick={() => navigate('contact')} className="hover:text-indigo-400 transition-colors">Contact</button>
           </div>
+          <p className="text-slate-700 text-[10px]">&copy; {new Date().getFullYear()} Anusha. All rights reserved.</p>
         </div>
       </footer>
     </div>

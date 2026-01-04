@@ -5,6 +5,7 @@ export interface Course {
   level: 'Beginner' | 'Intermediate' | 'Advanced';
   duration: string;
   tags: string[];
+  imageUrl?: string;
 }
 
 export interface Project {
@@ -14,6 +15,7 @@ export interface Project {
   techStack: string[];
   githubUrl?: string;
   demoUrl?: string;
+  imageUrl?: string;
 }
 
 export interface Note {

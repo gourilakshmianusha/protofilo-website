@@ -1,14 +1,10 @@
+
 import { GoogleGenAI } from "@google/genai";
 
-const apiKey = process.env.API_KEY || '';
-const ai = new GoogleGenAI({ apiKey });
+// Initialize Gemini API client using the environment variable API_KEY
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const generateDescription = async (title: string, type: 'course' | 'project', context?: string): Promise<string> => {
-  if (!apiKey) {
-    console.warn("API Key is missing. Returning placeholder.");
-    return "AI generation unavailable: Please set API Key.";
-  }
-
   try {
     const prompt = `
       Write a compelling, professional, and concise description (max 80 words) for a ${type} titled "${title}".
@@ -17,8 +13,9 @@ export const generateDescription = async (title: string, type: 'course' | 'proje
       Do not use markdown. Just plain text.
     `;
 
+    // Use gemini-3-flash-preview for efficient text generation
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3-flash-preview',
       contents: prompt,
     });
 
@@ -30,11 +27,10 @@ export const generateDescription = async (title: string, type: 'course' | 'proje
 };
 
 export const generateChatResponse = async (userMessage: string, portfolioContext: string): Promise<string> => {
-  if (!apiKey) return "I can't chat right now (API Key missing).";
-
   try {
+    // Use gemini-3-flash-preview for chat-like responses
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3-flash-preview',
       contents: `
         You are a helpful portfolio assistant for a software engineer and instructor.
         
