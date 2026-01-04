@@ -1,6 +1,6 @@
 import { Course, Project, Note, DataState } from '../types';
 
-const STORAGE_KEY = 'anusha_portfolio_data_v3';
+const STORAGE_KEY = 'anusha_portfolio_data_v4';
 
 const DEFAULT_COURSES: Course[] = [
   {
@@ -46,7 +46,7 @@ export const loadData = (): DataState => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
-      // Ensure we have all arrays, even if some were deleted
+      // Ensure we always return a valid object structure
       return {
         courses: Array.isArray(parsed.courses) ? parsed.courses : [],
         projects: Array.isArray(parsed.projects) ? parsed.projects : [],
@@ -54,12 +54,21 @@ export const loadData = (): DataState => {
       };
     }
   } catch (e) {
-    console.error("Error loading data", e);
+    console.error("Error loading data from localStorage:", e);
   }
-  // If no data exists, return defaults
-  return { courses: DEFAULT_COURSES, projects: DEFAULT_PROJECTS, notes: DEFAULT_NOTES };
+  
+  // Return defaults if no storage exists or if there was an error
+  return { 
+    courses: DEFAULT_COURSES, 
+    projects: DEFAULT_PROJECTS, 
+    notes: DEFAULT_NOTES 
+  };
 };
 
 export const saveData = (data: DataState) => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (e) {
+    console.error("Error saving data to localStorage:", e);
+  }
 };
